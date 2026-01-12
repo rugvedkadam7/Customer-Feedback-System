@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Feedback System</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Customer Feedback</h1>
+    <p class="subtitle">Your opinion matters to us!</p>
+
+    <div class="grid">
+      <!-- Feedback Form -->
+      <div class="card">
+        <h2>How would you rate us?</h2>
+
+        <div class="rating-container" id="ratingStars">
+          <span class="star" data-value="1">★</span>
+          <span class="star" data-value="2">★</span>
+          <span class="star" data-value="3">★</span>
+          <span class="star" data-value="4">★</span>
+          <span class="star" data-value="5">★</span>
+        </div>
+
+        <textarea id="feedbackText" placeholder="Tell us about your experience... (optional)"></textarea>
+
+        <button id="submitBtn">Submit Feedback</button>
+        <div class="message" id="message"></div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="card">
+        <h2>Live Analytics</h2>
+
+        <div class="stats">
+          <div class="stat-card">
+            <div>Total Reviews</div>
+            <div class="stat-number" id="totalReviews">0</div>
+          </div>
+          <div class="stat-card">
+            <div>Average Rating</div>
+            <div class="stat-number" id="avgRating">0.0</div>
+          </div>
+          <div class="stat-card">
+            <div>5★ Reviews</div>
+            <div class="stat-number" id="fiveStars">0</div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="ratingChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
