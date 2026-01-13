@@ -1,110 +1,116 @@
-let feedbacks = JSON.parse(localStorage.getItem('pulseBoardFeedbacks')) || [];
-
-const stars = document.querySelectorAll('.star');
-const feedbackText = document.getElementById('feedbackText');
-const submitBtn = document.getElementById('submitBtn');
-const messageDiv = document.getElementById('message');
-const resetBtn = document.getElementById('resetBtn');
-
-const totalReviewsEl = document.getElementById('totalReviews');
-const avgRatingEl = document.getElementById('avgRating');
-const fiveStarsEl = document.getElementById('fiveStars');
-
-let ratingChart;
 let selectedRating = 0;
+let selectedSatisfaction = 0;
+let feedbackData = JSON.parse(localStorage.getItem("feedbacks")) || [];
 
-function saveFeedbacks() {
-    localStorage.setItem('pulseBoardFeedbacks', JSON.stringify(feedbacks));
+// Theme toggle
+const toggleBtn = document.getElementById("toggleTheme");
+if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark");
+    toggleBtn.textContent = "☀️ Light Mode";
 }
 
-function updateStats() {
-    const total = feedbacks.length;
-    const sum = feedbacks.reduce((a, f) => a + f.rating, 0);
-    const avg = total ? (sum / total).toFixed(1) : '0.0';
-    const fiveStarCount = feedbacks.filter(f => f.rating === 5).length;
+toggleBtn.onclick = () => {
+    document.body.classList.toggle("dark");
+    const isDark = document.body.classList.contains("dark");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+    toggleBtn.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+};
 
-    totalReviewsEl.textContent = total;
-    avgRatingEl.textContent = avg;
-    fiveStarsEl.textContent = fiveStarCount;
-
-    updateChart();
+// Star rating
+function rate(value) {
+    selectedRating = value;
+    document.querySelectorAll(".stars span")
+        .forEach((s, i) => s.classList.toggle("active", i < value));
 }
 
-function updateChart() {
-    const counts = [0,0,0,0,0,0];
-    feedbacks.forEach(f => counts[f.rating]++);
-
-    if (ratingChart) ratingChart.destroy();
-
-    ratingChart = new Chart(document.getElementById('ratingChart'), {
-        type: 'doughnut',
-        data: {
-            labels: ['1★','2★','3★','4★','5★'],
-            datasets: [{
-                data: counts.slice(1),
-                backgroundColor: [
-                    '#ef4444','#f97316','#eab308','#84cc16','#22c55e'
-                ]
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            cutout: '65%',
-            plugins: {
-                legend: { position: 'bottom' }
-            }
-        }
-    });
+// Satisfaction
+function setSatisfaction(value) {
+    selectedSatisfaction = value;
+    document.querySelectorAll(".satisfaction-bar span")
+        .forEach((s, i) => s.classList.toggle("active", i + 1 === value));
 }
 
-function updateStars(value = selectedRating) {
-    stars.forEach(star => {
-        const v = parseInt(star.dataset.value);
-        star.classList.toggle('active', v <= value);
-        star.classList.toggle('hovered', v <= value);
-    });
-}
+// Submit feedback
+function submitFeedback() {
+    const name = document.getElementById("name").value.trim();
+    const text = document.getElementById("feedback").value.trim();
 
-stars.forEach(star => {
-    star.addEventListener('click', () => {
-        selectedRating = parseInt(star.dataset.value);
-        updateStars();
-    });
-    star.addEventListener('mouseover', () => updateStars(parseInt(star.dataset.value)));
-    star.addEventListener('mouseout', () => updateStars());
-});
-
-submitBtn.addEventListener('click', () => {
-    if (!selectedRating) {
-        messageDiv.textContent = "Please select a rating before submitting.";
-        messageDiv.className = 'message error';
+    if (!name || !text || !selectedRating || !selectedSatisfaction) {
+        alert("Please complete all fields");
         return;
     }
 
-    feedbacks.push({
+    feedbackData.unshift({
+        name,
+        text,
         rating: selectedRating,
-        comment: feedbackText.value.trim(),
-        date: new Date().toISOString()
+        satisfaction: selectedSatisfaction,
+        priority:
+            selectedRating <= 2 ? "High" :
+            selectedRating === 3 ? "Medium" : "Low"
     });
 
-    saveFeedbacks();
-    updateStats();
+    localStorage.setItem("feedbacks", JSON.stringify(feedbackData));
+    location.reload();
+}
 
-    selectedRating = 0;
-    feedbackText.value = '';
-    updateStars();
+// Stats
+document.getElementById("totalFeedback").innerText = feedbackData.length;
+const avg = feedbackData.reduce((a, b) => a + b.rating, 0) / (feedbackData.length || 1);
+document.getElementById("avgRating").innerText = avg.toFixed(1);
 
-    messageDiv.textContent = "Thank you for sharing your feedback.";
-    messageDiv.className = 'message success';
+// Recent feedback
+const list = document.getElementById("feedbackList");
+feedbackData.slice(0, 6).forEach(f => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${f.name}</strong> (${f.rating}★)<br>${f.text}`;
+    list.appendChild(li);
 });
 
-resetBtn.addEventListener('click', () => {
-    if (!confirm("This will permanently delete all feedback data. Continue?")) return;
-    feedbacks = [];
-    saveFeedbacks();
-    updateStats();
-    messageDiv.textContent = "All feedback data has been cleared.";
-    messageDiv.className = 'message success';
+// Priority list
+const priorityList = document.getElementById("priorityList");
+feedbackData.slice(0, 5).forEach(f => {
+    const li = document.createElement("li");
+    li.className = `priority-${f.priority.toLowerCase()}`;
+    li.innerHTML = `<strong>${f.priority}</strong><br>${f.text}`;
+    priorityList.appendChild(li);
 });
 
-updateStats();
+// Testimonials
+const testimonials = document.getElementById("testimonials");
+feedbackData.filter(f => f.rating >= 4).slice(0, 3).forEach(f => {
+    const div = document.createElement("div");
+    div.innerHTML = `“${f.text}”<br><strong>— ${f.name}</strong>`;
+    testimonials.appendChild(div);
+});
+
+// Reports
+document.getElementById("reportTotal").innerText = feedbackData.length;
+const positive = feedbackData.filter(f => f.rating >= 4).length;
+document.getElementById("positiveRate").innerText =
+    feedbackData.length ? Math.round((positive / feedbackData.length) * 100) + "%" : "0%";
+
+// Charts
+const ratingChart = new Chart(document.getElementById("ratingChart"), {
+    type: "doughnut",
+    data: {
+        labels: ["1★","2★","3★","4★","5★"],
+        datasets: [{
+            data: [1,2,3,4,5].map(r => feedbackData.filter(f => f.rating === r).length),
+            backgroundColor: ["#fecaca","#fed7aa","#fef3c7","#bbf7d0","#bfdbfe"]
+        }]
+    },
+    options: { cutout: "65%" }
+});
+
+const reportChart = new Chart(document.getElementById("reportChart"), {
+    type: "bar",
+    data: {
+        labels: ["1★","2★","3★","4★","5★"],
+        datasets: [{
+            label: "Responses",
+            data: [1,2,3,4,5].map(r => feedbackData.filter(f => f.rating === r).length),
+            backgroundColor: "#60a5fa"
+        }]
+    }
+});

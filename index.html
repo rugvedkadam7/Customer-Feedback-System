@@ -1,82 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PulseBoard – Company Feedback</title>
-
+    <meta charset="UTF-8">
+    <title>Customer Feedback Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
-    <div class="container">
 
-        <header>
-            <h1>SpendWise</h1>
-            <p>Your feedback helps us grow and serve you better</p>
-        </header>
+<div class="theme-toggle">
+    <button id="toggleTheme">🌙 Dark Mode</button>
+</div>
 
-        <div class="grid">
+<div class="app">
+    <h1>Customer Feedback Dashboard</h1>
+    <p class="subtitle">Actionable insights from customer experiences</p>
 
-            <!-- Feedback Form -->
-            <div class="card feedback-card">
-                <h2>Share Your Experience</h2>
-                <p class="subtitle">Rate your overall experience with our company</p>
+    <div class="grid">
 
-                <div class="rating-container" id="ratingStars">
-                    <span class="star" data-value="1">★</span>
-                    <span class="star" data-value="2">★</span>
-                    <span class="star" data-value="3">★</span>
-                    <span class="star" data-value="4">★</span>
-                    <span class="star" data-value="5">★</span>
-                </div>
+        <!-- Feedback Form -->
+        <div class="card">
+            <h2>Submit Feedback</h2>
 
-                <textarea id="feedbackText"
-                    placeholder="Share suggestions, concerns, or what we did well (optional)">
-                </textarea>
+            <input type="text" id="name" placeholder="Customer Name">
 
-                <button id="submitBtn" class="btn primary">
-                    Submit Feedback
-                </button>
-
-                <div class="message" id="message"></div>
+            <!-- Star Rating -->
+            <div class="stars">
+                <span onclick="rate(1)">★</span>
+                <span onclick="rate(2)">★</span>
+                <span onclick="rate(3)">★</span>
+                <span onclick="rate(4)">★</span>
+                <span onclick="rate(5)">★</span>
             </div>
 
-            <!-- Analytics Dashboard -->
-            <div class="card dashboard-card">
-                <div class="dashboard-header">
-                    <h2>Feedback Insights</h2>
-                    <button id="resetBtn" class="btn danger small">
-                        Clear Data
-                    </button>
-                </div>
-
-                <div class="stats">
-                    <div class="stat-card">
-                        <span class="label">Total Responses</span>
-                        <div class="stat-number" id="totalReviews">0</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <span class="label">Average Rating</span>
-                        <div class="stat-number" id="avgRating">0.0</div>
-                    </div>
-
-                    <div class="stat-card highlight">
-                        <span class="label">Excellent Ratings (5★)</span>
-                        <div class="stat-number" id="fiveStars">0</div>
-                    </div>
-                </div>
-
-                <div class="chart-container">
-                    <canvas id="ratingChart"></canvas>
-                </div>
+            <!-- Satisfaction Bar -->
+            <p class="label">Overall Satisfaction</p>
+            <div class="satisfaction-bar">
+                <span onclick="setSatisfaction(1)">😡</span>
+                <span onclick="setSatisfaction(2)">😕</span>
+                <span onclick="setSatisfaction(3)">😐</span>
+                <span onclick="setSatisfaction(4)">🙂</span>
+                <span onclick="setSatisfaction(5)">😍</span>
             </div>
 
+            <textarea id="feedback" placeholder="Share your experience"></textarea>
+            <button onclick="submitFeedback()">Submit Feedback</button>
         </div>
-    </div>
 
-    <script src="script.js"></script>
+        <!-- Stats -->
+        <div class="card stats-card">
+            <div>
+                <h3>Average Rating</h3>
+                <p id="avgRating">0.0</p>
+            </div>
+            <div>
+                <h3>Total Feedback</h3>
+                <p id="totalFeedback">0</p>
+            </div>
+        </div>
+
+        <!-- Rating Chart -->
+        <div class="card">
+            <h2>Rating Distribution</h2>
+            <canvas id="ratingChart"></canvas>
+        </div>
+
+        <!-- Priority List -->
+        <div class="card">
+            <h2>Priority Issues</h2>
+            <ul id="priorityList"></ul>
+        </div>
+
+        <!-- Testimonials -->
+        <div class="card">
+            <h2>Customer Testimonials</h2>
+            <div id="testimonials"></div>
+        </div>
+
+        <!-- Reports -->
+        <div class="card">
+            <h2>Reports Overview</h2>
+            <p>Total Feedback: <strong id="reportTotal">0</strong></p>
+            <p>Positive Feedback: <strong id="positiveRate">0%</strong></p>
+            <canvas id="reportChart"></canvas>
+        </div>
+
+        <!-- Recent Feedback -->
+        <div class="card">
+            <h2>Recent Feedback</h2>
+            <ul id="feedbackList"></ul>
+        </div>
+
+    </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
